@@ -1,148 +1,107 @@
-# MERN Blog Application
+# MERN Stack Blog Application
 
-## **Project Overview**
+This is a full-featured blog application built using the MERN (MongoDB, Express.js, React, Node.js) stack. It provides a platform for users to register, create, read, update, and delete blog posts, complete with image uploads and a dynamic real-time commenting system. 
 
-This is a full-stack **MERN (MongoDB, Express.js, React.js, Node.js) Blog Application**.
-The application allows users to:
+## ✨ Features Overview
 
-* View all blog posts
-* View a single blog post in detail
-* Create new blog posts
-* Manage categories
-* Navigate between pages with React Router
+* **Full CRUD Lifecycle:** Complete functionality for managing blog posts.
+* **Secure Authentication:** User registration and login secured with JWT (JSON Web Tokens) passed via HTTP-only cookies.
+* **Authorization:** Ensures only the post author or an administrator can modify or delete a post or comment.
+* **Image Uploads:** Integrates Multer middleware for handling and storing featured image files.
+* **Dynamic Comments:** Supports multi-level conversations with replies and real-time deletion for authorized users.
+* **Responsive Design:** Modern, clean UI built with Tailwind CSS.
 
-The backend uses **Express.js** and **MongoDB** for data storage.
-The frontend uses **React.js** with **Vite** as the build tool.
+## ⚙️ Getting Started
 
- **Folder Structure**
-blog-project/
-├─ client/          # React frontend (Vite)
-│  ├─ src/
-│  │  ├─ components/
-│  │  │  ├─ PostList.jsx
-│  │  │  ├─ PostDetail.jsx
-│  │  │  └─ PostForm.jsx
-│  │  ├─ pages/
-│  │  ├─ App.jsx
-│  │  └─ main.jsx
-│  ├─ .env.example
-│  └─ package.json
-├─ server/          # Express backend
-│  ├─ models/
-│  │  ├─ Post.js
-│  │  └─ Category.js
-│  ├─ routes/
-│  │  ├─ postRoutes.js
-│  │  └─ categoryRoutes.js
-│  ├─ server.js
-│  ├─ .env.example
-│  └─ package.json
+### Prerequisites
 
-**Setup Instructions**
+You will need the following installed on your system:
 
-### Backend
+* Node.js (LTS recommended)
+* npm (Node Package Manager)
+* A running instance of MongoDB (local).
 
-1. Navigate to the server folder:
+### Installation and Setup
 
-```bash
-cd server
-```
+1.  **Clone the Repository:**
+    ```bash
+    git clone [YOUR_REPOSITORY_URL]
+    cd mern-blog
+    ```
 
-2. Install dependencies:
+2.  **Install Dependencies:**
+    Install dependencies for both the backend (`server/`) and frontend (`client/`).
 
-```bash
-npm install
-```
+    ```bash
+    # Install backend dependencies (in the root directory)
+    npm install
+    cd client
+    # Install frontend dependencies (in the client/ directory)
+    npm install
+    cd ..
+    ```
 
-3. Create `.env` file (or copy `.env.example`) and set:
+3.  **Setup Environment Variables:**
+    Create a file named **`.env`** in the root directory (`mern-blog/`) and add your configuration details:
 
-```
-MONGO_URL=your_mongodb_connection_string
-PORT=5000
-```
 
-4. Start the server:
+4.  **Create Uploads Folder:**
+    Create a directory named `uploads` in the root folder to store uploaded images:
+    ```bash
+    mkdir uploads
+    ```
 
-```bash
-npm run dev
-```
+### Running the Application
 
-Server will run on `http://localhost:5000`.
+1.  **Start the Backend (in the root directory):**
+    ```bash
+    npm run dev  # Or whatever script you use to start Node/Express
+    ```
+    The API will run on `http://localhost:5000`.
+
+2.  **Start the Frontend (in the `client/` directory):**
+    ```bash
+    cd client
+    npm run dev  # Or whatever script you use to start React
+    ```
+    The React application will be accessible at `http://localhost:5173`.
 
 ---
 
-### Frontend
+## 📋 API Documentation
 
-1. Navigate to the client folder:
+The backend API uses **`/api/`** as the base URL. All protected routes rely on the `protect` middleware to verify a valid JWT provided in an **HTTP-only cookie**.
 
-```bash
-cd client
-```
+### 1. User Authentication (`/api/users`)
 
-2. Install dependencies:
+| Method | Route | Description | Access | Body/Parameters |
+| :--- | :--- | :--- | :--- | :--- |
+| **POST** | `/api/users/register` | Registers a new user account. | Public | `{username, email, password}` |
+| **POST** | `/api/users/login` | Authenticates a user and sets the JWT cookie. | Public | `{email, password}` |
+| **POST** | `/api/users/logout` | Clears the authentication cookie to log out the user. | Public | None |
+| **GET** | `/api/users/profile` | Retrieves the authenticated user's profile data. | Private | None |
 
-```bash
-npm install
-```
+### 2. Blog Posts (`/api/posts`)
 
-3. Create `.env` file (or copy `.env.example`) and set:
+| Method | Route | Description | Access | Body/Parameters |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET** | `/api/posts` | Retrieves all blog posts (sorted by creation date). | Public | None |
+| **GET** | `/api/posts/:id` | Retrieves a single post by ID or slug. | Public | URL Param: `:id` or `:slug` |
+| **POST** | `/api/posts` | Creates a new blog post. Must include file data for images. | Private | `FormData`: `{title, content, categoryId, image}` |
+| **PUT** | `/api/posts/:id` | Updates an existing blog post. | Private (Author/Admin) | `FormData`: updated fields (title, content, **new image file**) |
+| **DELETE** | `/api/posts/:id` | Deletes a blog post. | Private (Author/Admin) | None |
 
-```
-VITE_API_URL=http://localhost:5000/api
-```
+### 3. Categories (`/api/categories`)
 
-4. Start the frontend:
+| Method | Route | Description | Access | Body/Parameters |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET** | `/api/categories` | Retrieves all existing categories. | Public | None |
+| **POST** | `/api/categories` | Creates a new category. | Private (Admin) | `{name}` |
 
-```bash
-npm run dev
+### 4. Comments (`/api/comments`)
 
-Frontend will run on `http://localhost:5173`.
-
-## **API Documentation**
-
-### Posts
-
-| Endpoint         | Method | Description       |
-| ---------------- | ------ | ----------------- |
-| `/api/posts`     | GET    | Get all posts     |
-| `/api/posts/:id` | GET    | Get a single post |
-| `/api/posts`     | POST   | Create a new post |
-| `/api/posts/:id` | PUT    | Update a post     |
-| `/api/posts/:id` | DELETE | Delete a post     |
-
-### Categories
-
-| Endpoint          | Method | Description           |
-| ----------------- | ------ | --------------------- |
-| `/api/categories` | GET    | Get all categories    |
-| `/api/categories` | POST   | Create a new category |
-
-
-## **Features Implemented**
-
-* CRUD operations for blog posts
-* Category management
-* React Router navigation (`/`, `/post/:id`, `/create`)
-* API integration with fetch
-* Responsive UI using React components
-* Environment variable configuration for API URLs
-* Error handling for API requests
-
----
-
-## **Screenshots**
-
-### Home Page (Post List)
-
-![Home Page](server/screenshots/home.png)
-
-### Post Detail Page
-
-![Post Detail](server/screenshots/postdetail.png)
-
-
-
-
-
-
-
+| Method | Route | Description | Access | Body/Parameters |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET** | `/api/comments/:postId` | Retrieves all top-level comments and one level of replies for a specific post. | Public | URL Param: `:postId` |
+| **POST** | `/api/comments` | Creates a new comment or a reply. | Private | `{postId, content, parentCommentId (optional)}` |
+| **DELETE** | `/api/comments/:id` | Deletes a comment and all its associated replies. | Private (Author/Admin) | URL Param: `:id` |

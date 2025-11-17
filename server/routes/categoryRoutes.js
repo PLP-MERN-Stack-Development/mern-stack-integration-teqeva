@@ -1,27 +1,13 @@
-import express from "express";
-import Category from "../models/Category.js";
+import express from 'express';
+import { getCategories, createCategory } from '../controllers/categoryController.js';
 
 const router = express.Router();
 
-// GET all categories
-router.get("/", async (req, res) => {
-  try {
-    const categories = await Category.find();
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// Note: Authentication/Authorization middleware will be added later
+// to protect the POST route (only admins/authorized users should create categories).
 
-// POST new category
-router.post("/", async (req, res) => {
-  try {
-    const newCat = new Category(req.body);
-    const savedCat = await newCat.save();
-    res.json(savedCat);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+router.route('/')
+  .get(getCategories)      // GET /api/categories
+  .post(createCategory);  // POST /api/categories (Requires auth/protection later)
 
 export default router;

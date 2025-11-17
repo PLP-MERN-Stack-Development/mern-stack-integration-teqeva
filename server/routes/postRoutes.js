@@ -1,37 +1,27 @@
-import express from "express";
-import Post from "../models/Post.js";
+import express from 'express';
+import { 
+  getPosts, 
+  getPostById, 
+  createPost, 
+  updatePost, 
+  deletePost 
+} from '../controllers/postController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { uploadImage } from '../middleware/uploadMiddleware.js'; // <-- NEW IMPORT
 
 const router = express.Router();
 
-// GET all posts
-router.get("/", async (req, res) => {
-  try {
-    const posts = await Post.find();
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// Route for getting all posts and creating a new post
+router.route('/')
+  .get(getPosts)
+  // Requires authentication AND file upload handling
+  .post(protect, uploadImage, createPost); 
 
-// GET single post
-router.get("/:id", async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    res.json(post);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// POST new post
-router.post("/", async (req, res) => {
-  try {
-    const newPost = new Post(req.body);
-    const savedPost = await newPost.save();
-    res.json(savedPost);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+// Route for single post operations (get by ID, update, delete)
+router.route('/:id')
+  .get(getPostById)
+  // Requires authentication, file upload handling, and authorization check within controller
+  .put(protect, uploadImage, updatePost)
+  .delete(protect, deletePost);
 
 export default router;
